@@ -1,12 +1,19 @@
 import { GetStaticProps } from 'next'
-import Image from 'next/image'
+
 import Link from 'next/link'
-import { format, parseISO} from 'date-fns'
-import playGreenImg from '../../public/play-green.svg'
-import ptBR from 'date-fns/locale/pt-BR'
-import { api } from '../services/api'
+
+import { format, parseISO } from 'date-fns'
 import { convertDurationToTimeString } from '../utils/ConvertDurationToTimeString'
+import ptBR from 'date-fns/locale/pt-BR'
+
+import Image from 'next/image'
+import playGreenImg from '../../public/play-green.svg'
+
+import { api } from '../services/api'
+
 import styles from './home.module.scss'
+import { useContext } from 'react'
+import { PlayerContext } from './contexts/PlayerContext'
 
 type Episode = {
   id: string;
@@ -25,34 +32,36 @@ type HomeProps = {
   allEpisodes: Episode[]
 }
 
-export default function Home({latestEpisodes, allEpisodes}: HomeProps) {
+export default function Home({ latestEpisodes, allEpisodes }: HomeProps) {
+  const { play } = useContext(PlayerContext)
+ 
   return (
     <div className={styles.homepage}>
       <section className={styles.latestEpisodes}>
         <h2>últimos lançamentos</h2>
 
-    <ul>
-      {latestEpisodes.map(episode => {
-        return (
-          <li key={episode.id}>
-            <Image width={192} height={192} src={episode.thumbnail} alt={episode.title} objectFit="cover" />
-           
-           <div className={styles.episodeDetails}>
-              <Link href={`/episodes/${episode.id}`}>
-                <a>{episode.title}</a>
-             </Link>
-            <p>{episode.members}</p>
-            <span>{episode.publishedAt}</span>
-            <span>{episode.durationAsString}</span>
-           </div>
+        <ul>
+          {latestEpisodes.map(episode => {
+            return (
+              <li key={episode.id}>
+                <Image width={192} height={192} src={episode.thumbnail} alt={episode.title} objectFit="cover" />
 
-           <button type="button">
-            <Image src={playGreenImg} alt="Tocar episódio"/>
-           </button>
-          </li>
-        )
-      } )}
-    </ul>
+                <div className={styles.episodeDetails}>
+                  <Link href={`/episodes/${episode.id}`}>
+                    <a>{episode.title}</a>
+                  </Link>
+                  <p>{episode.members}</p>
+                  <span>{episode.publishedAt}</span>
+                  <span>{episode.durationAsString}</span>
+                </div>
+
+                <button type="button" onClick={() => play(episode)}>
+                  <Image src={playGreenImg} alt="Tocar episódio" />
+                </button>
+              </li>
+            )
+          })}
+        </ul>
 
       </section>
       <section className={styles.allEpisodes}>
@@ -77,15 +86,15 @@ export default function Home({latestEpisodes, allEpisodes}: HomeProps) {
                   </td>
                   <td>
                     <Link href={`/episodes/${episode.id}`}>
-                    <a>{episode.title}</a>
+                      <a>{episode.title}</a>
                     </Link>
                   </td>
                   <td>{episode.members}</td>
                   <td style={{ width: 100 }}>{episode.publishedAt}</td>
                   <td>{episode.durationAsString}</td>
                   <td>
-                    <button type="button">
-                      <Image src={playGreenImg}  alt="Tocar episódio"/>
+                    <button type="button" onClick={() => play(episode)}>
+                      <Image src={playGreenImg} alt="Tocar episódio" />
                     </button>
                   </td>
                 </tr>
@@ -110,7 +119,7 @@ export const getStaticProps: GetStaticProps = async () => { //pega antes da pág
   })
   //SSG, SÓ FUNCIONA EM BUILD
 
-  
+
   const episodes = data.map(episode => {
     return {
       id: episode.id,
@@ -123,7 +132,7 @@ export const getStaticProps: GetStaticProps = async () => { //pega antes da pág
       url: episode.file.url,
     }
   })
-  
+
   const latestEpisodes = episodes.slice(0, 2)
   const allEpisodes = episodes.slice(2, episodes.length)
 
