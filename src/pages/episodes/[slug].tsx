@@ -7,11 +7,14 @@ import ptBR from 'date-fns/locale/pt-BR'
 
 import { api } from '../../services/api'
 
+import Head from 'next/head'
+
 import Image from 'next/image'
 import arrowLeftImg from '../../../public/arrow-left.svg'
 import playImg from '../../../public/play.svg'
 
 import styles from './episode.module.scss'
+import { UserPlayer } from '../../contexts/PlayerContext'
 
 type Episode = {
     id: string;
@@ -30,8 +33,13 @@ type EpisodeProps = {
 }
 
 export default function Episode({ episode }: EpisodeProps) {
+    const { play } = UserPlayer()
+
     return (
         <div className={styles.episode}>
+            <Head>
+                <title>{episode.title} | Podcastr</title>
+            </Head>
             <div className={styles.thumbnailContainer}>
                 <Link href="/" passHref>
                     <button type="button">
@@ -39,7 +47,7 @@ export default function Episode({ episode }: EpisodeProps) {
                     </button>
                 </Link>
                 <Image width={700} height={160} src={episode.thumbnail} objectFit="cover" alt="Imagem ilustrativa" />
-                <button type="button">
+                <button type="button" onClick={() => play(episode)}>
                     <Image src={playImg} alt="Tocar episódio" />
                 </button>
             </div>

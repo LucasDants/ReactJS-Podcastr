@@ -1,0 +1,4 @@
+Responsividade
+PWA (next pwa)
+dark theme
+Electron
